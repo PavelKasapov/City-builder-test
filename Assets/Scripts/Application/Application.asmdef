@@ -1,6 +1,11 @@
 {
     "name": "Application",
-    "references": ["Domain", "UniTask", "UniRx", "MessagePipe"],
+    "references": [
+        "Domain",
+        "MessagePipe",
+        "UniTask",
+        "R3"
+    ],
     "includePlatforms": [],
     "excludePlatforms": []
 }

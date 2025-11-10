@@ -1,24 +1,22 @@
 ﻿using UnityEngine;
-using Domain.Gameplay.Models;
+using Domain;
 
-namespace Presentation.Gameplay.Views
+namespace Presentation.Views
 {
     public class GridView : MonoBehaviour
     {
         [SerializeField]
         private Material _gridMaterial;
 
-        private Domain.Gameplay.Models.Grid _grid;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private Texture2D _cellStatesTexture;
 
-        public void Initialize(Domain.Gameplay.Models.Grid grid)
+        public void Initialize(int width, int height)
         {
-            this._grid = grid;
             this.CreateComponents();
-            this.CreateMesh();
-            this.SetupTexture();
+            this.CreateMesh(width, height);
+            this.SetupTexture(width, height);
         }
 
         private void CreateComponents()
@@ -28,16 +26,16 @@ namespace Presentation.Gameplay.Views
             this._meshRenderer.material = new Material(this._gridMaterial);
         }
 
-        private void CreateMesh()
+        private void CreateMesh(int width, int height)
         {
             Mesh mesh = new Mesh();
 
             Vector3[] vertices = new Vector3[]
             {
                 new Vector3(0, 0, 0),
-                new Vector3(this._grid.Width, 0, 0),
-                new Vector3(0, this._grid.Height, 0),
-                new Vector3(this._grid.Width, this._grid.Height, 0)
+                new Vector3(width, 0, 0),
+                new Vector3(0, height, 0),
+                new Vector3(width, height, 0)
             };
 
             int[] triangles = { 0, 2, 1, 2, 3, 1 };
@@ -50,12 +48,12 @@ namespace Presentation.Gameplay.Views
             this._meshFilter.mesh = mesh;
         }
 
-        private void SetupTexture()
+        private void SetupTexture(int width, int height)
         {
-            this._cellStatesTexture = new Texture2D(this._grid.Width, this._grid.Height);
+            this._cellStatesTexture = new Texture2D(width, height);
             this._cellStatesTexture.filterMode = FilterMode.Point;
 
-            Color[] colors = new Color[this._grid.Width * this._grid.Height];
+            Color[] colors = new Color[width * height];
             for (int i = 0; i < colors.Length; i++)
             {
                 colors[i] = Color.black;
@@ -65,7 +63,7 @@ namespace Presentation.Gameplay.Views
             this._cellStatesTexture.Apply();
 
             this._meshRenderer.material.SetTexture("_CellColors", this._cellStatesTexture);
-            this._meshRenderer.material.SetVector("_GridSize", new Vector4(this._grid.Width, this._grid.Height, 0, 0));
+            this._meshRenderer.material.SetVector("_GridSize", new Vector4(width, height, 0, 0));
         }
 
         public void SetCellState(GridPosition position, bool isOccupied)

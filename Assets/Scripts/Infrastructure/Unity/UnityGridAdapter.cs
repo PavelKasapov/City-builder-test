@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Domain.Gameplay.Models;
+using Domain;
 using UnityGrid = UnityEngine.Grid; // Псевдоним для избежания конфликта
 
 namespace Infrastructure.Unity
@@ -7,7 +7,7 @@ namespace Infrastructure.Unity
     public class UnityGridAdapter : MonoBehaviour
     {
         [SerializeField]
-        private UnityGrid _unityGrid; // Встроенный Unity Grid
+        private UnityGrid _unityGrid;
 
         public Vector3 GridToWorldPosition(GridPosition gridPosition)
         {

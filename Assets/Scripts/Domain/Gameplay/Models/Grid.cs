@@ -1,4 +1,4 @@
-﻿namespace Domain.Gameplay.Models
+﻿namespace Domain
 {
     public class Grid
     {
@@ -28,6 +28,7 @@
             {
                 return this._cells[position.X, position.Y];
             }
+
             return null;
         }
     }

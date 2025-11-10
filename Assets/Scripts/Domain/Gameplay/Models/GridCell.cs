@@ -1,4 +1,4 @@
-﻿namespace Domain.Gameplay.Models
+﻿namespace Domain
 {
     public class GridCell
     {
