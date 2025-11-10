@@ -82,16 +82,14 @@ $RECYCLE.BIN/
 # PACKAGES       #
 # ============== #
 
-# Packed Packages
-*.7z
-*.dll
-*.zip
+[Pp]ackages/*
+![Pp]ackages/manifest.json
+![Pp]ackages/packages-lock.json
 
 # ============== #
 # ASSET STORE    #
 # ============== #
-
-[Pp]ackages/
+ 
 [Aa]ssets/AssetStoreTools*
 
 # ============== #
@@ -122,4 +120,4 @@ $RECYCLE.BIN/
 # Исключения для вашего проекта
 # Раскомментируйте если используете эти пути:
 # /[Aa]ssets/Content/2D/Sprites/Original/  # исходники спрайтов
-# /[Aa]ssets/Content/SFX/Original/      
+# /[Aa]ssets/Content/SFX/Original/
