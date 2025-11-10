@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Domain;
+using Domain.Models;
 using UnityGrid = UnityEngine.Grid; // Псевдоним для избежания конфликта
 
 namespace Infrastructure.Unity

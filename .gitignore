@@ -82,9 +82,12 @@ $RECYCLE.BIN/
 # PACKAGES       #
 # ============== #
 
-[Pp]ackages/*
-![Pp]ackages/manifest.json
-![Pp]ackages/packages-lock.json
+**/Packages/packages-lock.json
+**/Packages/*.tgz
+**/Packages/*.tar.gz
+**/Packages/*.7z
+**/Packages/*.dll
+**/Packages/*.zip
 
 # ============== #
 # ASSET STORE    #

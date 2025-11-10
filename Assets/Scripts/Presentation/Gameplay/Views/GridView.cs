@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
-using Domain;
+using Presentation.Interfaces;
+using Domain.Models;
 
 namespace Presentation.Views
 {
-    public class GridView : MonoBehaviour
+    public class GridView : MonoBehaviour, IGridView
     {
         [SerializeField]
         private Material _gridMaterial;
