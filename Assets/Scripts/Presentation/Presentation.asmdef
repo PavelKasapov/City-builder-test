@@ -1,0 +1,6 @@
+{
+    "name": "Presentation", 
+    "references": ["Application", "Domain", "Unity.InputSystem"],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}
