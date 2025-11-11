@@ -2,11 +2,9 @@
 using Application.Services;
 using R3;
 using VContainer;
-using Domain.Models;
 using VContainer.Unity;
-using UnityEngine;
 
-namespace Presentation.Presenters
+namespace Presentation.Gameplay.Presenters
 {
     public class HudPresenter : IInitializable, System.IDisposable
     {
@@ -30,9 +28,6 @@ namespace Presentation.Presenters
             // Подписываемся на изменения золота
             this._economyService.Gold.Subscribe(this.OnGoldChanged).AddTo(this._disposables);
 
-            // Подписываемся на выбор зданий
-            this._hudView.OnBuildingSelected.Subscribe(this.OnBuildingSelected).AddTo(this._disposables);
-
             // Устанавливаем начальное значение
             this.OnGoldChanged(this._economyService.Gold.CurrentValue);
         }
@@ -45,13 +40,6 @@ namespace Presentation.Presenters
         private void OnGoldChanged(int gold)
         {
             this._hudView.UpdateGoldDisplay(gold);
-        }
-
-        private void OnBuildingSelected(BuildingType buildingType)
-        {
-            Debug.Log($"[HudPresenter] Building selected in UI: {buildingType}");
-            // Здесь мы будем переключать режим размещения зданий
-            // Пока просто логируем
         }
     }
 }

@@ -39,8 +39,3 @@
 .building-button:hover {
     background-color: #3498db;
 }
-
-.building-button:disabled {
-    background-color: #7f8c8d;
-    color: #bdc3c7;
-}

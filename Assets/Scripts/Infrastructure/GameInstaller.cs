@@ -5,10 +5,11 @@ using Domain.Events;
 using Application.Services;
 using Presentation.Presenters;
 using Presentation.Interfaces;
-using Presentation.Views;
 using MessagePipe;
 using MessagePipe.VContainer;
 using Application;
+using Presentation.Gameplay.Views;
+using Presentation.Gameplay.Presenters;
 
 namespace Infrastructure
 {
@@ -49,6 +50,7 @@ namespace Infrastructure
             // Presentation - Presenters
             builder.RegisterEntryPoint<GridPresenter>(Lifetime.Singleton);
             builder.RegisterEntryPoint<HudPresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<BuildingInputPresenter>(Lifetime.Singleton);
         }
     }
 }

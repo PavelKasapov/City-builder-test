@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using Presentation.Interfaces;
 using Domain.Models;
+using Presentation.Interfaces;
 
-namespace Presentation.Views
+namespace Presentation.Gameplay.Views
 {
     public class GridView : MonoBehaviour, IGridView
     {

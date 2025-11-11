@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/Scripts/Presentation/UI/Hud/HudStyle.uss?fileID=7433441132597879392&amp;guid=2d02e89e711cb10499331263377193dd&amp;type=3#HudStyle" />
+    <Style src="project://database/Assets/Content/UI/Hud/HudStyle.uss?fileID=7433441132597879392&amp;guid=2d02e89e711cb10499331263377193dd&amp;type=3#HudStyle" />
     <ui:VisualElement class="hud-container">
         <ui:VisualElement class="resources-panel">
             <ui:Label name="gold-label" text="Gold: 1000" class="resource-label" />

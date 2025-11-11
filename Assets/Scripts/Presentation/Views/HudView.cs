@@ -4,7 +4,7 @@ using Presentation.Interfaces;
 using R3;
 using Domain.Models;
 
-namespace Presentation.Views
+namespace Presentation.Gameplay.Views
 {
     public class HudView : MonoBehaviour, IHudView
     {
@@ -21,26 +21,30 @@ namespace Presentation.Views
 
         public void Initialize()
         {
-            if (this._uiDocument == null)
-            {
-                Debug.LogError("[HudView] UIDocument is not assigned!");
-                return;
-            }
+            // Решаем проблему с инициализацией через активацию/деактивацию
+            this._uiDocument.enabled = false;
+            this._uiDocument.enabled = true;
 
+            this.InitializeUI();
+        }
+
+        private void InitializeUI()
+        {
             VisualElement root = this._uiDocument.rootVisualElement;
 
-            // Находим элементы UI
             this._goldLabel = root.Q<Label>("gold-label");
             this._houseButton = root.Q<Button>("house-button");
             this._farmButton = root.Q<Button>("farm-button");
             this._mineButton = root.Q<Button>("mine-button");
 
-            // Подписываемся на кнопки
-            this._houseButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.House);
-            this._farmButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.Farm);
-            this._mineButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.Mine);
+            if (this._houseButton != null)
+                this._houseButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.House);
 
-            Debug.Log("[HudView] Initialized successfully");
+            if (this._farmButton != null)
+                this._farmButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.Farm);
+
+            if (this._mineButton != null)
+                this._mineButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.Mine);
         }
 
         public void UpdateGoldDisplay(int goldAmount)
@@ -53,7 +57,6 @@ namespace Presentation.Views
 
         private void OnBuildingButtonClicked(BuildingType buildingType)
         {
-            Debug.Log($"[HudView] Building selected: {buildingType}");
             this._buildingSelectedSubject.OnNext(buildingType);
         }
 
