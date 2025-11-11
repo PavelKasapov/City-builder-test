@@ -1,14 +1,14 @@
-﻿namespace Domain.Models
-{
-    public class GridCell
-    {
-        public GridPosition Position { get; }
-        public bool IsOccupied { get; set; }
+﻿using Domain.Models;
 
-        public GridCell(GridPosition position)
-        {
-            this.Position = position;
-            this.IsOccupied = false;
-        }
+public class GridCell
+{
+    public GridPosition Position { get; }
+    public bool IsOccupied => this.BuildingType != BuildingType.None;
+    public BuildingType BuildingType { get; set; } // Добавляем
+
+    public GridCell(GridPosition position)
+    {
+        this.Position = position;
+        this.BuildingType = BuildingType.None;
     }
 }

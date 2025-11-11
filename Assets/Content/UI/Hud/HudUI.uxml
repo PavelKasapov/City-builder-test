@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Scripts/Presentation/UI/Hud/HudStyle.uss?fileID=7433441132597879392&amp;guid=2d02e89e711cb10499331263377193dd&amp;type=3#HudStyle" />
+    <ui:VisualElement class="hud-container">
+        <ui:VisualElement class="resources-panel">
+            <ui:Label name="gold-label" text="Gold: 1000" class="resource-label" />
+        </ui:VisualElement>
+        <ui:VisualElement class="buildings-panel">
+            <ui:Button name="house-button" text="House (100)" class="building-button" />
+            <ui:Button name="farm-button" text="Farm (150)" class="building-button" />
+            <ui:Button name="mine-button" text="Mine (200)" class="building-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

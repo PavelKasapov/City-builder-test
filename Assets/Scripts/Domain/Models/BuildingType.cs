@@ -2,6 +2,7 @@
 {
     public enum BuildingType
     {
+        None,
         House,
         Farm,
         Mine

@@ -2,15 +2,13 @@
 using VContainer.Unity;
 using Domain.Models;
 using Domain.Events;
-using Application;
 using Application.Services;
+using Presentation.Presenters;
 using Presentation.Interfaces;
 using Presentation.Views;
 using MessagePipe;
-using Presentation.Presenters;
-using System;
-using UnityEngine;
-using Grid = Domain.Models.Grid;
+using MessagePipe.VContainer;
+using Application;
 
 namespace Infrastructure
 {
@@ -18,8 +16,6 @@ namespace Infrastructure
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            Debug.Log("[GameInstaller] Starting configuration...");
-
             MessagePipeOptions options = builder.RegisterMessagePipe();
 
             builder.RegisterBuildCallback(container =>
@@ -28,23 +24,31 @@ namespace Infrastructure
                 PlaceBuildingUseCase useCase = container.Resolve<PlaceBuildingUseCase>(); // Delete after implementing real class that needs PlaceBuildingUseCase
             });
 
+            // Domain
             builder.Register<Grid>(Lifetime.Singleton)
                    .WithParameter(32)
                    .WithParameter(32);
 
+            // Services
             builder.Register<EconomyService>(Lifetime.Singleton);
+
+            // Use Cases
             builder.Register<PlaceBuildingUseCase>(Lifetime.Singleton);
 
+            // Events and Commands
             builder.RegisterMessageBroker<PlaceBuildingCommand>(options);
             builder.RegisterMessageBroker<BuildingPlacedEvent>(options);
             builder.RegisterMessageBroker<NotEnoughResourcesEvent>(options);
 
+            // Presentation - Views
             builder.RegisterComponentInHierarchy<GridView>()
                    .As<IGridView>();
+            builder.RegisterComponentInHierarchy<HudView>()
+                   .As<IHudView>();
 
+            // Presentation - Presenters
             builder.RegisterEntryPoint<GridPresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<HudPresenter>(Lifetime.Singleton);
         }
     }
-
-
 }

@@ -66,7 +66,7 @@ namespace Application
 
             Debug.Log($"Building placed! Gold spent: {cost.Amount}, Remaining: {this._economyService.Gold.CurrentValue}");
 
-            cell.IsOccupied = true;
+            cell.BuildingType = command.BuildingType;
             this._publisher.Publish(new BuildingPlacedEvent
             {
                 Position = command.Position,
