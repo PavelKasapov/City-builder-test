@@ -24,11 +24,7 @@ namespace Presentation.Gameplay.Presenters
         public void Initialize()
         {
             this._hudView.Initialize();
-
-            // Подписываемся на изменения золота
             this._economyService.Gold.Subscribe(this.OnGoldChanged).AddTo(this._disposables);
-
-            // Устанавливаем начальное значение
             this.OnGoldChanged(this._economyService.Gold.CurrentValue);
         }
 

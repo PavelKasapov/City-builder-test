@@ -74,24 +74,20 @@ namespace Infrastructure.Input
 
         private void SetupObservables()
         {
-            // Mouse position updates
             Observable.EveryUpdate()
                 .Subscribe(_ => this.UpdateMousePosition())
                 .AddTo(this._disposables);
 
-            // Left Click
             this._inputActions.Gameplay.LeftClick
                 .PerformedAsObservable()
                 .Subscribe(_ => this._leftClickSubject.OnNext(Unit.Default))
                 .AddTo(this._disposables);
 
-            // Right Click
             this._inputActions.Gameplay.RightClick
                 .PerformedAsObservable()
                 .Subscribe(_ => this._rightClickSubject.OnNext(Unit.Default))
                 .AddTo(this._disposables);
 
-            // Building Hotkeys
             this._inputActions.BuildingSelection.House
                 .PerformedAsObservable()
                 .Subscribe(_ => this._buildingHotkeySubject.OnNext(BuildingType.House))
@@ -107,7 +103,6 @@ namespace Infrastructure.Input
                 .Subscribe(_ => this._buildingHotkeySubject.OnNext(BuildingType.Mine))
                 .AddTo(this._disposables);
 
-            // Camera Movement - используем ReadValue в Update
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
@@ -116,7 +111,6 @@ namespace Infrastructure.Input
                 })
                 .AddTo(this._disposables);
 
-            // Cancel
             this._inputActions.Gameplay.Cancel
                 .PerformedAsObservable()
                 .Subscribe(_ => this._cancelBuildSubject.OnNext(Unit.Default))
@@ -132,13 +126,9 @@ namespace Infrastructure.Input
         {
             Vector2 mousePos = this.MousePosition.Value;
 
-            // Для 2D камеры используем ScreenToWorldPoint
             Vector3 worldPosition = this._mainCamera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, this._mainCamera.nearClipPlane));
 
-            // В 2D нам нужны только X и Y координаты
-            worldPosition.z = 0; // Или другое фиксированное значение, если нужно
-
-            Debug.Log($"[InputService] 2D Mouse: {mousePos} -> World: {worldPosition}");
+            worldPosition.z = 0;
 
             return worldPosition;
         }

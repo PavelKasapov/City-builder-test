@@ -31,7 +31,6 @@ namespace Infrastructure.Editor
 
             Gizmos.color = this._gridColor;
 
-            // Рисуем вертикальные линии
             for (int x = 0; x <= this._width; x++)
             {
                 Vector3 start = this._grid.CellToWorld(new Vector3Int(x, 0, 0));
@@ -39,7 +38,6 @@ namespace Infrastructure.Editor
                 Gizmos.DrawLine(start, end);
             }
 
-            // Рисуем горизонтальные линии
             for (int y = 0; y <= this._height; y++)
             {
                 Vector3 start = this._grid.CellToWorld(new Vector3Int(0, y, 0));
@@ -47,7 +45,6 @@ namespace Infrastructure.Editor
                 Gizmos.DrawLine(start, end);
             }
 
-            // Рисуем границы сетки
             Gizmos.color = Color.white;
             Vector3 bottomLeft = this._grid.CellToWorld(new Vector3Int(0, 0, 0));
             Vector3 topLeft = this._grid.CellToWorld(new Vector3Int(0, this._height, 0));
