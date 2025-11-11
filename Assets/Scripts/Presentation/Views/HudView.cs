@@ -37,6 +37,10 @@ namespace Presentation.Gameplay.Views
             this._farmButton = root.Q<Button>("farm-button");
             this._mineButton = root.Q<Button>("mine-button");
 
+            this._houseButton.focusable = false;
+            this._farmButton.focusable = false;
+            this._mineButton.focusable = false;
+
             if (this._houseButton != null)
                 this._houseButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.House);
 

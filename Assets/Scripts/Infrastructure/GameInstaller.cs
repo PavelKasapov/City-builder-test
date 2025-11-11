@@ -10,6 +10,10 @@ using MessagePipe.VContainer;
 using Application;
 using Presentation.Gameplay.Views;
 using Presentation.Gameplay.Presenters;
+using Infrastructure.Input;
+using Infrastructure.Camera;
+using Application.Interfaces;
+using Infrastructure.Unity;
 
 namespace Infrastructure
 {
@@ -32,6 +36,10 @@ namespace Infrastructure
 
             // Services
             builder.Register<EconomyService>(Lifetime.Singleton);
+            builder.Register<GridHighlightService>(Lifetime.Singleton);
+            builder.Register<GridDataService>(Lifetime.Singleton);
+            builder.Register<InputService>(Lifetime.Singleton)
+                   .AsImplementedInterfaces();
 
             // Use Cases
             builder.Register<PlaceBuildingUseCase>(Lifetime.Singleton);
@@ -47,10 +55,15 @@ namespace Infrastructure
             builder.RegisterComponentInHierarchy<HudView>()
                    .As<IHudView>();
 
+            // Infrastructure - Unity Components
+            builder.RegisterComponentInHierarchy<UnityGridAdapter>()
+            .As<IGridCoordinateConverter>();
+
             // Presentation - Presenters
             builder.RegisterEntryPoint<GridPresenter>(Lifetime.Singleton);
             builder.RegisterEntryPoint<HudPresenter>(Lifetime.Singleton);
             builder.RegisterEntryPoint<BuildingInputPresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<CameraController>(Lifetime.Singleton);
         }
     }
 }

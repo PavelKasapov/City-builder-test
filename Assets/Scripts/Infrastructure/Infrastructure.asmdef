@@ -8,6 +8,7 @@
         "MessagePipe",
         "MessagePipe.VContainer",
         "R3",
+        "ReactiveInputSystem",
         "UniTask",
         "Unity.InputSystem"
     ],

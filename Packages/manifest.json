@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.annulusgames.reactive-input-system": "https://github.com/AnnulusGames/ReactiveInputSystem.git?path=src/ReactiveInputSystem/Assets/ReactiveInputSystem",
     "com.codewriter.triinspector": "https://github.com/codewriter-packages/Tri-Inspector.git",
     "com.cysharp.messagepipe": "https://github.com/Cysharp/MessagePipe.git?path=src/MessagePipe.Unity/Assets/Plugins/MessagePipe",
     "com.cysharp.messagepipe.vcontainer": "https://github.com/Cysharp/MessagePipe.git?path=src/MessagePipe.Unity/Assets/Plugins/MessagePipe.VContainer",

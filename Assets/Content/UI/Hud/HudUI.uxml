@@ -9,5 +9,6 @@
             <ui:Button name="farm-button" text="Farm (150)" class="building-button" />
             <ui:Button name="mine-button" text="Mine (200)" class="building-button" />
         </ui:VisualElement>
+        <ui:Label name="build-status" text="Select a building to place" class="status-label" />
     </ui:VisualElement>
 </ui:UXML>

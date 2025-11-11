@@ -16,24 +16,22 @@ namespace Application
         private readonly IPublisher<NotEnoughResourcesEvent> _errorPublisher;
         private readonly ISubscriber<PlaceBuildingCommand> _commandSubscriber;
         private readonly CompositeDisposable _disposables = new();
+        private readonly GridDataService _gridDataService;
 
         public PlaceBuildingUseCase(
             Grid grid,
             EconomyService economyService,
+            GridDataService gridDataService,
             IPublisher<BuildingPlacedEvent> publisher,
             IPublisher<NotEnoughResourcesEvent> errorPublisher,
             ISubscriber<PlaceBuildingCommand> commandSubscriber)
         {
             this._grid = grid;
             this._economyService = economyService;
+            this._gridDataService = gridDataService;
             this._publisher = publisher;
             this._errorPublisher = errorPublisher;
             this._commandSubscriber = commandSubscriber;
-            this._commandSubscriber.Subscribe(this.Handle).AddTo(this._disposables);
-        }
-
-        public void Initialize()
-        {
             this._commandSubscriber.Subscribe(this.Handle).AddTo(this._disposables);
         }
 
@@ -67,6 +65,9 @@ namespace Application
             Debug.Log($"Building placed! Gold spent: {cost.Amount}, Remaining: {this._economyService.Gold.CurrentValue}");
 
             cell.BuildingType = command.BuildingType;
+
+            this._gridDataService.UpdateCellState(command.Position, true);
+
             this._publisher.Publish(new BuildingPlacedEvent
             {
                 Position = command.Position,

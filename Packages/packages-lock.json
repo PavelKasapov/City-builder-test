@@ -1,5 +1,15 @@
 {
   "dependencies": {
+    "com.annulusgames.reactive-input-system": {
+      "version": "https://github.com/AnnulusGames/ReactiveInputSystem.git?path=src/ReactiveInputSystem/Assets/ReactiveInputSystem",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.inputsystem": "1.0.0",
+        "com.cysharp.r3": "0.1.0"
+      },
+      "hash": "9ecf3a8ca32dc39eeb1c3b9da212ec9a9a9a3746"
+    },
     "com.codewriter.triinspector": {
       "version": "https://github.com/codewriter-packages/Tri-Inspector.git",
       "depth": 0,
