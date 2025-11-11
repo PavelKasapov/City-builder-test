@@ -15,6 +15,7 @@ namespace Presentation.Gameplay.Views
         private MeshRenderer _meshRenderer;
         private Texture2D _cellStatesTexture;
         private GridDataService _gridDataService;
+        private GridHighlightService _highlightService;
 
         private Color _freeColor = Color.black;
         private Color _occupiedColor = Color.red;
@@ -24,9 +25,10 @@ namespace Presentation.Gameplay.Views
         private CompositeDisposable _disposables = new();
 
         [Inject]
-        public void Construct(GridDataService gridDataService)
+        public void Construct(GridDataService gridDataService, GridHighlightService highlightService)
         {
             this._gridDataService = gridDataService;
+            this._highlightService = highlightService;
         }
 
         public void Initialize(int width, int height)
@@ -40,11 +42,15 @@ namespace Presentation.Gameplay.Views
 
         private void SetupSubscriptions()
         {
-            this._gridDataService.HoveredPosition
+            this._highlightService.HoveredPosition
                 .Subscribe(_ => this.UpdateTexture())
                 .AddTo(this._disposables);
 
-            this._gridDataService.IsHoverValid
+            this._highlightService.HoveredSize
+                .Subscribe(_ => this.UpdateTexture())
+                .AddTo(this._disposables);
+
+            this._highlightService.IsPositionValid
                 .Subscribe(_ => this.UpdateTexture())
                 .AddTo(this._disposables);
         }
@@ -74,10 +80,19 @@ namespace Presentation.Gameplay.Views
             bool isOccupied = this._gridDataService.IsCellOccupied(position);
             Color baseColor = isOccupied ? this._occupiedColor : this._freeColor;
 
-            GridPosition? hoveredPosition = this._gridDataService.HoveredPosition.CurrentValue;
-            if (hoveredPosition.HasValue && hoveredPosition.Value.Equals(position))
+            GridPosition? hoveredPosition = this._highlightService.HoveredPosition.CurrentValue;
+            BuildingSize? hoveredSize = this._highlightService.HoveredSize.CurrentValue;
+
+            if (hoveredPosition.HasValue && hoveredSize.HasValue)
             {
-                return this._gridDataService.IsHoverValid.CurrentValue ? this._hoverValidColor : this._hoverInvalidColor;
+                GridPosition hoverPos = hoveredPosition.Value;
+                BuildingSize size = hoveredSize.Value;
+
+                if (position.X >= hoverPos.X && position.X < hoverPos.X + size.Width &&
+                    position.Y >= hoverPos.Y && position.Y < hoverPos.Y + size.Height)
+                {
+                    return this._highlightService.IsPositionValid.CurrentValue ? this._hoverValidColor : this._hoverInvalidColor;
+                }
             }
 
             return baseColor;

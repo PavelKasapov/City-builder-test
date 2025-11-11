@@ -10,33 +10,26 @@ namespace Application.Services
         private readonly Grid _grid;
 
         public ReactiveProperty<GridPosition?> HoveredPosition { get; } = new();
+        public ReactiveProperty<BuildingSize?> HoveredSize { get; } = new();
         public ReactiveProperty<bool> IsPositionValid { get; } = new();
 
         public GridHighlightService(Grid grid)
         {
-            _grid = grid;
+            this._grid = grid;
         }
 
-        public void UpdateHoveredPosition(GridPosition gridPosition)
+        public void UpdateHoveredArea(GridPosition position, BuildingSize size, bool isValid)
         {
-            HoveredPosition.Value = gridPosition;
-            IsPositionValid.Value = IsPositionBuildable(gridPosition);
+            this.HoveredPosition.Value = position;
+            this.HoveredSize.Value = size;
+            this.IsPositionValid.Value = isValid;
         }
 
         public void ClearHover()
         {
-            HoveredPosition.Value = null;
-            IsPositionValid.Value = false;
-        }
-
-        private bool IsPositionBuildable(GridPosition position)
-        {
-            if (position.X < 0 || position.X >= _grid.Width ||
-                position.Y < 0 || position.Y >= _grid.Height)
-                return false;
-
-            GridCell cell = _grid.GetCell(position);
-            return cell != null && !cell.IsOccupied;
+            this.HoveredPosition.Value = null;
+            this.HoveredSize.Value = null;
+            this.IsPositionValid.Value = false;
         }
     }
 }

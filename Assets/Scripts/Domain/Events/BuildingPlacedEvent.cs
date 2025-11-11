@@ -6,6 +6,6 @@ namespace Domain.Events
     {
         public GridPosition Position;
         public BuildingType BuildingType;
-        public bool IsOccupied;
+        public BuildingSize Size;
     }
 }

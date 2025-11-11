@@ -55,5 +55,16 @@ namespace Application.Services
                 }
             }
         }
+
+        public void UpdateCellArea(GridPosition position, BuildingSize size, bool isOccupied)
+        {
+            for (int x = position.X; x < position.X + size.Width; x++)
+            {
+                for (int y = position.Y; y < position.Y + size.Height; y++)
+                {
+                    this.UpdateCellState(new GridPosition(x, y), isOccupied);
+                }
+            }
+        }
     }
 }

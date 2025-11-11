@@ -3,8 +3,8 @@
     public enum BuildingType
     {
         None,
-        House,
-        Farm,
-        Mine
+        House,    // 2x2
+        Farm,     // 2x3  
+        Mine      // 3x3
     }
 }

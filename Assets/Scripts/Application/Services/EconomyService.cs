@@ -14,7 +14,7 @@ namespace Application.Services
 
         public EconomyService()
         {
-            this._resources[ResourceType.Gold] = new ReactiveProperty<int>(1000);
+            this._resources[ResourceType.Gold] = new ReactiveProperty<int>(3000);
             this._readOnlyResources[ResourceType.Gold] = this._resources[ResourceType.Gold].ToReadOnlyReactiveProperty();
 
             Debug.Log($"Initial gold: {this.Gold.CurrentValue}");

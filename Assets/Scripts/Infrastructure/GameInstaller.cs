@@ -40,6 +40,7 @@ namespace Infrastructure
             builder.Register<GridDataService>(Lifetime.Singleton);
             builder.Register<InputService>(Lifetime.Singleton)
                    .AsImplementedInterfaces();
+            builder.Register<BuildingDataService>(Lifetime.Singleton);
 
             // Use Cases
             builder.Register<PlaceBuildingUseCase>(Lifetime.Singleton);

@@ -31,5 +31,40 @@
 
             return null;
         }
+
+
+        public bool CanPlaceBuilding(GridPosition position, BuildingSize size)
+        {
+            for (int x = position.X; x < position.X + size.Width; x++)
+            {
+                for (int y = position.Y; y < position.Y + size.Height; y++)
+                {
+                    GridPosition currentPos = new GridPosition(x, y);
+                    GridCell cell = this.GetCell(currentPos);
+
+                    if (cell == null || cell.IsOccupied)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        public void PlaceBuilding(GridPosition position, BuildingType buildingType, BuildingSize size)
+        {
+            for (int x = position.X; x < position.X + size.Width; x++)
+            {
+                for (int y = position.Y; y < position.Y + size.Height; y++)
+                {
+                    GridPosition currentPos = new GridPosition(x, y);
+                    GridCell cell = this.GetCell(currentPos);
+
+                    if (cell != null)
+                    {
+                        cell.BuildingType = buildingType;
+                    }
+                }
+            }
+        }
     }
 }

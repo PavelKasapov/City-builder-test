@@ -21,6 +21,7 @@ namespace Presentation.Gameplay.Presenters
         private readonly IPublisher<PlaceBuildingCommand> _commandPublisher;
         private readonly IGridCoordinateConverter _gridConverter;
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly BuildingDataService _buildingDataService;
 
         private BuildingType? _selectedBuildingType;
 
@@ -31,7 +32,8 @@ namespace Presentation.Gameplay.Presenters
             Grid grid,
             GridHighlightService highlightService,
             IPublisher<PlaceBuildingCommand> commandPublisher,
-            IGridCoordinateConverter gridConverter)
+            IGridCoordinateConverter gridConverter,
+            BuildingDataService buildingDataService)
         {
             this._hudView = hudView;
             this._inputService = inputService;
@@ -39,6 +41,7 @@ namespace Presentation.Gameplay.Presenters
             this._highlightService = highlightService;
             this._commandPublisher = commandPublisher;
             this._gridConverter = gridConverter;
+            this._buildingDataService = buildingDataService;
         }
 
         public void Initialize()
@@ -91,19 +94,26 @@ namespace Presentation.Gameplay.Presenters
             Vector3 worldPosition = this._inputService.GetMouseWorldPosition();
             GridPosition gridPosition = this.WorldToGridPosition(worldPosition);
 
+            BuildingSize size = this._buildingDataService.GetBuildingSize(this._selectedBuildingType.Value);
+            bool isValid = this._buildingDataService.IsPositionValidForBuilding(this._grid, gridPosition, this._selectedBuildingType.Value);
 
-            this._highlightService.UpdateHoveredPosition(gridPosition);
+            this._highlightService.UpdateHoveredArea(gridPosition, size, isValid);
         }
 
         private void OnLeftClick()
         {
             if (!this._selectedBuildingType.HasValue ||
-                !this._highlightService.HoveredPosition.Value.HasValue ||
-                !this._highlightService.IsPositionValid.Value)
+                !this._highlightService.HoveredPosition.Value.HasValue)
                 return;
 
             GridPosition position = this._highlightService.HoveredPosition.Value.Value;
             BuildingType buildingType = this._selectedBuildingType.Value;
+
+            if (!this._buildingDataService.IsPositionValidForBuilding(this._grid, position, buildingType))
+            {
+                Debug.Log("Position not valid for building");
+                return;
+            }
 
             Debug.Log($"Placing {buildingType} at {position}");
 
