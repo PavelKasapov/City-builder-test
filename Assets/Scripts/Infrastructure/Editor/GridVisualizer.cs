@@ -6,16 +6,11 @@ namespace Infrastructure.Editor
     [ExecuteInEditMode]
     public class GridVisualizer : MonoBehaviour
     {
-        [SerializeField]
-        private UnityGrid _grid;
-        [SerializeField]
-        private int _width = 32;
-        [SerializeField]
-        private int _height = 32;
-        [SerializeField]
-        private Color _gridColor = Color.gray;
-        [SerializeField]
-        private bool _showGrid = true;
+        [SerializeField] private UnityGrid _grid;
+        [SerializeField] private int _width = 32;
+        [SerializeField] private int _height = 32;
+        [SerializeField] private Color _gridColor = Color.gray;
+        [SerializeField] private bool _showGrid = true;
 
         private void Awake()
         {

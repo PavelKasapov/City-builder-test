@@ -11,34 +11,24 @@ namespace Infrastructure.Input
 {
     public class InputService : IInputService, IInitializable, System.IDisposable
     {
-        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly CompositeDisposable _disposables = new();
         private readonly PlayerInputActions _inputActions;
         private UnityEngine.Camera _mainCamera;
 
-        public ReactiveProperty<Vector2> MousePosition { get; } = new ReactiveProperty<Vector2>();
-        public ReactiveProperty<Vector2> CameraMovement { get; } = new ReactiveProperty<Vector2>();
-        public ReactiveProperty<float> CameraZoom { get; } = new ReactiveProperty<float>();
-
-        public Observable<Unit> OnLeftClick { get; }
-        public Observable<Unit> OnRightClick { get; }
-        public Observable<Unit> OnCancelBuild { get; }
-        public Observable<BuildingType> OnBuildingHotkey { get; }
-
-        private readonly Subject<Unit> _leftClickSubject = new Subject<Unit>();
-        private readonly Subject<Unit> _rightClickSubject = new Subject<Unit>();
-        private readonly Subject<Unit> _cancelBuildSubject = new Subject<Unit>();
-        private readonly Subject<BuildingType> _buildingHotkeySubject = new Subject<BuildingType>();
+        // Оптимизированные стримы - активируются только при наличии подписчиков
+        public Observable<Vector2> MousePosition { get; private set; }
+        public Observable<Vector2> CameraMovement { get; private set; }
+        public Observable<float> CameraZoom { get; private set; }
+        public Observable<Unit> OnLeftClick { get; private set; }
+        public Observable<Unit> OnRightClick { get; private set; }
+        public Observable<Unit> OnCancelBuild { get; private set; }
+        public Observable<BuildingType> OnBuildingHotkey { get; private set; }
 
         [Inject]
         public InputService()
         {
             this._inputActions = new PlayerInputActions();
             this._mainCamera = UnityEngine.Camera.main;
-
-            this.OnLeftClick = this._leftClickSubject;
-            this.OnRightClick = this._rightClickSubject;
-            this.OnCancelBuild = this._cancelBuildSubject;
-            this.OnBuildingHotkey = this._buildingHotkeySubject;
         }
 
         public void Initialize()
@@ -49,12 +39,8 @@ namespace Infrastructure.Input
 
         public void Dispose()
         {
-            this.DisableInput();
+            this._inputActions?.Dispose();
             this._disposables?.Dispose();
-            this._leftClickSubject?.Dispose();
-            this._rightClickSubject?.Dispose();
-            this._cancelBuildSubject?.Dispose();
-            this._buildingHotkeySubject?.Dispose();
         }
 
         private void EnableInput()
@@ -69,67 +55,53 @@ namespace Infrastructure.Input
             this._inputActions.Gameplay.Disable();
             this._inputActions.BuildingSelection.Disable();
             this._inputActions.Camera.Disable();
-            this._inputActions?.Dispose();
         }
 
         private void SetupObservables()
         {
-            Observable.EveryUpdate()
-                .Subscribe(_ => this.UpdateMousePosition())
-                .AddTo(this._disposables);
+            // Мышь - активируется только когда кто-то подписан
+            this.MousePosition = Observable.EveryUpdate()
+                .Select(_ => Mouse.current.position.ReadValue())
+                .DistinctUntilChanged()
+                .Publish()
+                .RefCount();
 
-            this._inputActions.Gameplay.LeftClick
+            // Камера - активируется только когда кто-то подписан
+            this.CameraMovement = this._inputActions.Camera.Movement
                 .PerformedAsObservable()
-                .Subscribe(_ => this._leftClickSubject.OnNext(Unit.Default))
-                .AddTo(this._disposables);
+                .Merge(this._inputActions.Camera.Movement.CanceledAsObservable())
+                .Select(ctx => ctx.ReadValue<Vector2>())
+                .Publish()
+                .RefCount();
 
-            this._inputActions.Gameplay.RightClick
+            this.CameraZoom = this._inputActions.Camera.Zoom
                 .PerformedAsObservable()
-                .Subscribe(_ => this._rightClickSubject.OnNext(Unit.Default))
-                .AddTo(this._disposables);
+                .Merge(this._inputActions.Camera.Zoom.CanceledAsObservable())
+                .Select(ctx => ctx.ReadValue<float>())
+                .Publish()
+                .RefCount();
 
-            this._inputActions.BuildingSelection.House
-                .PerformedAsObservable()
-                .Subscribe(_ => this._buildingHotkeySubject.OnNext(BuildingType.House))
-                .AddTo(this._disposables);
+            // Клики - не нуждаются в Publish().RefCount() т.к. это одиночные события
+            this.OnLeftClick = this._inputActions.Gameplay.LeftClick.PerformedAsObservable().Select(_ => Unit.Default);
+            this.OnRightClick = this._inputActions.Gameplay.RightClick.PerformedAsObservable().Select(_ => Unit.Default);
+            this.OnCancelBuild = this._inputActions.Gameplay.Cancel.PerformedAsObservable().Select(_ => Unit.Default);
 
-            this._inputActions.BuildingSelection.Farm
-                .PerformedAsObservable()
-                .Subscribe(_ => this._buildingHotkeySubject.OnNext(BuildingType.Farm))
-                .AddTo(this._disposables);
-
-            this._inputActions.BuildingSelection.Mine
-                .PerformedAsObservable()
-                .Subscribe(_ => this._buildingHotkeySubject.OnNext(BuildingType.Mine))
-                .AddTo(this._disposables);
-
-            Observable.EveryUpdate()
-                .Subscribe(_ =>
-                {
-                    this.CameraMovement.Value = this._inputActions.Camera.Movement.ReadValue<Vector2>();
-                    this.CameraZoom.Value = this._inputActions.Camera.Zoom.ReadValue<float>();
-                })
-                .AddTo(this._disposables);
-
-            this._inputActions.Gameplay.Cancel
-                .PerformedAsObservable()
-                .Subscribe(_ => this._cancelBuildSubject.OnNext(Unit.Default))
-                .AddTo(this._disposables);
+            // Горячие клавиши - не нуждаются в Publish().RefCount()
+            this.OnBuildingHotkey = Observable.Merge(
+                this._inputActions.BuildingSelection.House.PerformedAsObservable().Select(_ => BuildingType.House),
+                this._inputActions.BuildingSelection.Farm.PerformedAsObservable().Select(_ => BuildingType.Farm),
+                this._inputActions.BuildingSelection.Mine.PerformedAsObservable().Select(_ => BuildingType.Mine)
+            );
         }
 
-        private void UpdateMousePosition()
-        {
-            this.MousePosition.Value = Mouse.current.position.ReadValue();
-        }
+        public Vector2 GetMousePosition() => Mouse.current.position.ReadValue();
 
         public Vector3 GetMouseWorldPosition()
         {
-            Vector2 mousePos = this.MousePosition.Value;
-
-            Vector3 worldPosition = this._mainCamera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, this._mainCamera.nearClipPlane));
-
+            Vector2 mousePos = this.GetMousePosition();
+            Vector3 worldPosition = this._mainCamera.ScreenToWorldPoint(
+                new Vector3(mousePos.x, mousePos.y, this._mainCamera.nearClipPlane));
             worldPosition.z = 0;
-
             return worldPosition;
         }
     }

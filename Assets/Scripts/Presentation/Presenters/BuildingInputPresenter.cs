@@ -20,8 +20,9 @@ namespace Presentation.Gameplay.Presenters
         private readonly GridHighlightService _highlightService;
         private readonly IPublisher<PlaceBuildingCommand> _commandPublisher;
         private readonly IGridCoordinateConverter _gridConverter;
-        private readonly CompositeDisposable _disposables = new CompositeDisposable();
         private readonly BuildingDataService _buildingDataService;
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly CompositeDisposable _mouseSubscription = new CompositeDisposable();
 
         private BuildingType? _selectedBuildingType;
 
@@ -54,10 +55,6 @@ namespace Presentation.Gameplay.Presenters
                 .Subscribe(this.OnBuildingSelected)
                 .AddTo(this._disposables);
 
-            this._inputService.MousePosition
-                .Subscribe(_ => this.OnMouseMoved())
-                .AddTo(this._disposables);
-
             this._inputService.OnLeftClick
                 .Subscribe(_ => this.OnLeftClick())
                 .AddTo(this._disposables);
@@ -69,28 +66,45 @@ namespace Presentation.Gameplay.Presenters
             this._inputService.OnCancelBuild
                 .Subscribe(_ => this.OnCancelBuild())
                 .AddTo(this._disposables);
+
+            Debug.Log("✅ BuildingInputPresenter инициализирован");
         }
 
         public void Dispose()
         {
             this._disposables?.Dispose();
+            this._mouseSubscription?.Dispose();
             this._highlightService.ClearHover();
         }
 
         private void OnBuildingSelected(BuildingType buildingType)
         {
-            Debug.Log($"Building selected: {buildingType}");
+            Debug.Log($"🏗️ Выбрано здание: {buildingType}");
             this._selectedBuildingType = buildingType;
+
+            this.EnableMouseTracking();
+        }
+
+        private void EnableMouseTracking()
+        {
+            this._mouseSubscription.Clear();
+
+            this._inputService.MousePosition
+                .Subscribe(_ => this.OnMouseMoved())
+                .AddTo(this._mouseSubscription);
+
+            Debug.Log("🖱️ Включено отслеживание мыши для строительства");
+        }
+
+        private void DisableMouseTracking()
+        {
+            this._mouseSubscription.Clear();
+            this._highlightService.ClearHover();
+            Debug.Log("🖱️ Отключено отслеживание мыши");
         }
 
         private void OnMouseMoved()
         {
-            if (!this._selectedBuildingType.HasValue)
-            {
-                this._highlightService.ClearHover();
-                return;
-            }
-
             Vector3 worldPosition = this._inputService.GetMouseWorldPosition();
             GridPosition gridPosition = this.WorldToGridPosition(worldPosition);
 
@@ -103,19 +117,14 @@ namespace Presentation.Gameplay.Presenters
         private void OnLeftClick()
         {
             if (!this._selectedBuildingType.HasValue ||
-                !this._highlightService.HoveredPosition.Value.HasValue)
+                !this._highlightService.HoveredPosition.Value.HasValue ||
+                !this._highlightService.IsPositionValid.Value)
                 return;
 
             GridPosition position = this._highlightService.HoveredPosition.Value.Value;
             BuildingType buildingType = this._selectedBuildingType.Value;
 
-            if (!this._buildingDataService.IsPositionValidForBuilding(this._grid, position, buildingType))
-            {
-                Debug.Log("Position not valid for building");
-                return;
-            }
-
-            Debug.Log($"Placing {buildingType} at {position}");
+            Debug.Log($"[BuildingInputPresenter] Размещение {buildingType} в {position}");
 
             this._commandPublisher.Publish(new PlaceBuildingCommand
             {
@@ -131,19 +140,17 @@ namespace Presentation.Gameplay.Presenters
         {
             if (this._selectedBuildingType.HasValue)
             {
-                Debug.Log("Build cancelled");
+                Debug.Log("🗑️ Отмена выбора здания");
                 this._selectedBuildingType = null;
-                this._highlightService.ClearHover();
+                this.DisableMouseTracking();
             }
         }
 
         private GridPosition WorldToGridPosition(Vector3 worldPosition)
         {
             GridPosition gridPosition = this._gridConverter.WorldToGridPosition(worldPosition);
-
             int x = Mathf.Clamp(gridPosition.X, 0, this._grid.Width - 1);
             int y = Mathf.Clamp(gridPosition.Y, 0, this._grid.Height - 1);
-
             return new GridPosition(x, y);
         }
     }

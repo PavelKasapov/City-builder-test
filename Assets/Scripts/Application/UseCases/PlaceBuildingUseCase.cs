@@ -79,6 +79,5 @@ namespace Application
                 Size = size
             });
         }
-
     }
 }
