@@ -36,121 +36,121 @@ namespace Presentation.Gameplay.Presenters
             IGridCoordinateConverter gridConverter,
             BuildingDataService buildingDataService)
         {
-            this._hudView = hudView;
-            this._inputService = inputService;
-            this._grid = grid;
-            this._highlightService = highlightService;
-            this._commandPublisher = commandPublisher;
-            this._gridConverter = gridConverter;
-            this._buildingDataService = buildingDataService;
+            _hudView = hudView;
+            _inputService = inputService;
+            _grid = grid;
+            _highlightService = highlightService;
+            _commandPublisher = commandPublisher;
+            _gridConverter = gridConverter;
+            _buildingDataService = buildingDataService;
         }
 
         public void Initialize()
         {
-            this._hudView.OnBuildingSelected
-                .Subscribe(this.OnBuildingSelected)
-                .AddTo(this._disposables);
+            _hudView.OnBuildingSelected
+                .Subscribe(OnBuildingSelected)
+                .AddTo(_disposables);
 
-            this._inputService.OnBuildingHotkey
-                .Subscribe(this.OnBuildingSelected)
-                .AddTo(this._disposables);
+            _inputService.OnBuildingHotkey
+                .Subscribe(OnBuildingSelected)
+                .AddTo(_disposables);
 
-            this._inputService.OnLeftClick
-                .Subscribe(_ => this.OnLeftClick())
-                .AddTo(this._disposables);
+            _inputService.OnLeftClick
+                .Subscribe(_ => OnLeftClick())
+                .AddTo(_disposables);
 
-            this._inputService.OnRightClick
-                .Subscribe(_ => this.OnRightClick())
-                .AddTo(this._disposables);
+            _inputService.OnRightClick
+                .Subscribe(_ => OnRightClick())
+                .AddTo(_disposables);
 
-            this._inputService.OnCancelBuild
-                .Subscribe(_ => this.OnCancelBuild())
-                .AddTo(this._disposables);
+            _inputService.OnCancelBuild
+                .Subscribe(_ => OnCancelBuild())
+                .AddTo(_disposables);
 
             Debug.Log("✅ BuildingInputPresenter инициализирован");
         }
 
         public void Dispose()
         {
-            this._disposables?.Dispose();
-            this._mouseSubscription?.Dispose();
-            this._highlightService.ClearHover();
+            _disposables?.Dispose();
+            _mouseSubscription?.Dispose();
+            _highlightService.ClearHover();
         }
 
         private void OnBuildingSelected(BuildingType buildingType)
         {
             Debug.Log($"🏗️ Выбрано здание: {buildingType}");
-            this._selectedBuildingType = buildingType;
+            _selectedBuildingType = buildingType;
 
-            this.EnableMouseTracking();
+            EnableMouseTracking();
         }
 
         private void EnableMouseTracking()
         {
-            this._mouseSubscription.Clear();
+            _mouseSubscription.Clear();
 
-            this._inputService.MousePosition
-                .Subscribe(_ => this.OnMouseMoved())
-                .AddTo(this._mouseSubscription);
+            _inputService.MousePosition
+                .Subscribe(_ => OnMouseMoved())
+                .AddTo(_mouseSubscription);
 
             Debug.Log("🖱️ Включено отслеживание мыши для строительства");
         }
 
         private void DisableMouseTracking()
         {
-            this._mouseSubscription.Clear();
-            this._highlightService.ClearHover();
+            _mouseSubscription.Clear();
+            _highlightService.ClearHover();
             Debug.Log("🖱️ Отключено отслеживание мыши");
         }
 
         private void OnMouseMoved()
         {
-            Vector3 worldPosition = this._inputService.GetMouseWorldPosition();
-            GridPosition gridPosition = this.WorldToGridPosition(worldPosition);
+            Vector3 worldPosition = _inputService.GetMouseWorldPosition();
+            GridPosition gridPosition = WorldToGridPosition(worldPosition);
 
-            BuildingSize size = this._buildingDataService.GetBuildingSize(this._selectedBuildingType.Value);
-            bool isValid = this._buildingDataService.IsPositionValidForBuilding(this._grid, gridPosition, this._selectedBuildingType.Value);
+            BuildingSize size = _buildingDataService.GetBuildingSize(_selectedBuildingType.Value);
+            bool isValid = _buildingDataService.IsPositionValidForBuilding(_grid, gridPosition, _selectedBuildingType.Value);
 
-            this._highlightService.UpdateHoveredArea(gridPosition, size, isValid);
+            _highlightService.UpdateHoveredArea(gridPosition, size, isValid);
         }
 
         private void OnLeftClick()
         {
-            if (!this._selectedBuildingType.HasValue ||
-                !this._highlightService.HoveredPosition.Value.HasValue ||
-                !this._highlightService.IsPositionValid.Value)
+            if (!_selectedBuildingType.HasValue ||
+                !_highlightService.HoveredPosition.Value.HasValue ||
+                !_highlightService.IsPositionValid.Value)
                 return;
 
-            GridPosition position = this._highlightService.HoveredPosition.Value.Value;
-            BuildingType buildingType = this._selectedBuildingType.Value;
+            GridPosition position = _highlightService.HoveredPosition.Value.Value;
+            BuildingType buildingType = _selectedBuildingType.Value;
 
             Debug.Log($"[BuildingInputPresenter] Размещение {buildingType} в {position}");
 
-            this._commandPublisher.Publish(new PlaceBuildingCommand
+            _commandPublisher.Publish(new PlaceBuildingCommand
             {
                 Position = position,
                 BuildingType = buildingType
             });
         }
 
-        private void OnRightClick() => this.ClearSelection();
-        private void OnCancelBuild() => this.ClearSelection();
+        private void OnRightClick() => ClearSelection();
+        private void OnCancelBuild() => ClearSelection();
 
         private void ClearSelection()
         {
-            if (this._selectedBuildingType.HasValue)
+            if (_selectedBuildingType.HasValue)
             {
                 Debug.Log("🗑️ Отмена выбора здания");
-                this._selectedBuildingType = null;
-                this.DisableMouseTracking();
+                _selectedBuildingType = null;
+                DisableMouseTracking();
             }
         }
 
         private GridPosition WorldToGridPosition(Vector3 worldPosition)
         {
-            GridPosition gridPosition = this._gridConverter.WorldToGridPosition(worldPosition);
-            int x = Mathf.Clamp(gridPosition.X, 0, this._grid.Width - 1);
-            int y = Mathf.Clamp(gridPosition.Y, 0, this._grid.Height - 1);
+            GridPosition gridPosition = _gridConverter.WorldToGridPosition(worldPosition);
+            int x = Mathf.Clamp(gridPosition.X, 0, _grid.Width - 1);
+            int y = Mathf.Clamp(gridPosition.Y, 0, _grid.Height - 1);
             return new GridPosition(x, y);
         }
     }

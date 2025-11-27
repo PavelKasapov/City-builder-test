@@ -28,51 +28,51 @@ namespace Application
             ISubscriber<PlaceBuildingCommand> commandSubscriber,
             BuildingDataService buildingDataService)
         {
-            this._grid = grid;
-            this._economyService = economyService;
-            this._gridDataService = gridDataService;
-            this._publisher = publisher;
-            this._errorPublisher = errorPublisher;
-            this._commandSubscriber = commandSubscriber;
-            this._commandSubscriber.Subscribe(this.Handle).AddTo(this._disposables);
-            this._buildingDataService = buildingDataService;
+            _grid = grid;
+            _economyService = economyService;
+            _gridDataService = gridDataService;
+            _publisher = publisher;
+            _errorPublisher = errorPublisher;
+            _commandSubscriber = commandSubscriber;
+            _commandSubscriber.Subscribe(Handle).AddTo(_disposables);
+            _buildingDataService = buildingDataService;
         }
 
         public void Dispose()
         {
-            this._disposables?.Dispose();
+            _disposables?.Dispose();
         }
 
         private void Handle(PlaceBuildingCommand command)
         {
             Debug.Log($"Processing command: {command.BuildingType} at {command.Position}");
 
-            BuildingSize size = this._buildingDataService.GetBuildingSize(command.BuildingType);
+            BuildingSize size = _buildingDataService.GetBuildingSize(command.BuildingType);
 
-            if (!this._grid.CanPlaceBuilding(command.Position, size))
+            if (!_grid.CanPlaceBuilding(command.Position, size))
             {
                 Debug.Log($"Cannot place building at {command.Position}");
                 return;
             }
 
-            ResourceData cost = this._buildingDataService.GetBuildingCost(command.BuildingType);
-            if (!this._economyService.TrySpend(cost))
+            ResourceData cost = _buildingDataService.GetBuildingCost(command.BuildingType);
+            if (!_economyService.TrySpend(cost))
             {
-                Debug.Log($"Not enough gold! Current: {this._economyService.Gold.CurrentValue}, Required: {cost.Amount}");
-                this._errorPublisher.Publish(new NotEnoughResourcesEvent
+                Debug.Log($"Not enough gold! Current: {_economyService.Gold.CurrentValue}, Required: {cost.Amount}");
+                _errorPublisher.Publish(new NotEnoughResourcesEvent
                 {
                     ResourceType = ResourceType.Gold
                 });
                 return;
             }
 
-            Debug.Log($"Building placed! Gold spent: {cost.Amount}, Remaining: {this._economyService.Gold.CurrentValue}");
+            Debug.Log($"Building placed! Gold spent: {cost.Amount}, Remaining: {_economyService.Gold.CurrentValue}");
 
-            this._grid.PlaceBuilding(command.Position, command.BuildingType, size);
+            _grid.PlaceBuilding(command.Position, command.BuildingType, size);
 
-            this._gridDataService.UpdateCellArea(command.Position, size, true);
+            _gridDataService.UpdateCellArea(command.Position, size, true);
 
-            this._publisher.Publish(new BuildingPlacedEvent
+            _publisher.Publish(new BuildingPlacedEvent
             {
                 Position = command.Position,
                 BuildingType = command.BuildingType,

@@ -14,8 +14,6 @@ namespace Infrastructure.Input
         private readonly CompositeDisposable _disposables = new();
         private readonly PlayerInputActions _inputActions;
         private UnityEngine.Camera _mainCamera;
-
-        // Оптимизированные стримы - активируются только при наличии подписчиков
         public Observable<Vector2> MousePosition { get; private set; }
         public Observable<Vector2> CameraMovement { get; private set; }
         public Observable<float> CameraZoom { get; private set; }
@@ -27,72 +25,68 @@ namespace Infrastructure.Input
         [Inject]
         public InputService()
         {
-            this._inputActions = new PlayerInputActions();
-            this._mainCamera = UnityEngine.Camera.main;
+            _inputActions = new PlayerInputActions();
+            _mainCamera = UnityEngine.Camera.main;
         }
 
         public void Initialize()
         {
-            this.EnableInput();
-            this.SetupObservables();
+            EnableInput();
+            SetupObservables();
         }
 
         public void Dispose()
         {
-            this._inputActions?.Dispose();
-            this._disposables?.Dispose();
+            _inputActions?.Dispose();
+            _disposables?.Dispose();
         }
 
         private void EnableInput()
         {
-            this._inputActions.Gameplay.Enable();
-            this._inputActions.BuildingSelection.Enable();
-            this._inputActions.Camera.Enable();
+            _inputActions.Gameplay.Enable();
+            _inputActions.BuildingSelection.Enable();
+            _inputActions.Camera.Enable();
         }
 
         private void DisableInput()
         {
-            this._inputActions.Gameplay.Disable();
-            this._inputActions.BuildingSelection.Disable();
-            this._inputActions.Camera.Disable();
+            _inputActions.Gameplay.Disable();
+            _inputActions.BuildingSelection.Disable();
+            _inputActions.Camera.Disable();
         }
 
         private void SetupObservables()
         {
-            // Мышь - активируется только когда кто-то подписан
-            this.MousePosition = Observable.EveryUpdate()
+            MousePosition = Observable.EveryUpdate()
                 .Select(_ => Mouse.current.position.ReadValue())
                 .DistinctUntilChanged()
                 .Publish()
                 .RefCount();
 
-            // Камера - активируется только когда кто-то подписан
-            this.CameraMovement = this._inputActions.Camera.Movement
+            CameraMovement = _inputActions.Camera.Movement
                 .PerformedAsObservable()
-                .Merge(this._inputActions.Camera.Movement.CanceledAsObservable())
+                .Merge(_inputActions.Camera.Movement.CanceledAsObservable())
                 .Select(ctx => ctx.ReadValue<Vector2>())
                 .DistinctUntilChanged()
                 .Publish()
                 .RefCount();
 
-            this.CameraZoom = this._inputActions.Camera.Zoom
+            CameraZoom = _inputActions.Camera.Zoom
                 .PerformedAsObservable()
-                .Merge(this._inputActions.Camera.Zoom.CanceledAsObservable())
+                .Merge(_inputActions.Camera.Zoom.CanceledAsObservable())
                 .Select(ctx => ctx.ReadValue<float>())
                 .DistinctUntilChanged()
                 .Publish()
                 .RefCount();
 
-            // Клики - не нуждаются в Publish().RefCount() т.к. это одиночные события
-            this.OnLeftClick = this._inputActions.Gameplay.LeftClick.PerformedAsObservable().Select(_ => Unit.Default);
-            this.OnRightClick = this._inputActions.Gameplay.RightClick.PerformedAsObservable().Select(_ => Unit.Default);
-            this.OnCancelBuild = this._inputActions.Gameplay.Cancel.PerformedAsObservable().Select(_ => Unit.Default);
+            OnLeftClick = _inputActions.Gameplay.LeftClick.PerformedAsObservable().Select(_ => Unit.Default);
+            OnRightClick = _inputActions.Gameplay.RightClick.PerformedAsObservable().Select(_ => Unit.Default);
+            OnCancelBuild = _inputActions.Gameplay.Cancel.PerformedAsObservable().Select(_ => Unit.Default);
 
-            // Горячие клавиши - не нуждаются в Publish().RefCount()
-            this.OnBuildingHotkey = Observable.Merge(
-                this._inputActions.BuildingSelection.House.PerformedAsObservable().Select(_ => BuildingType.House),
-                this._inputActions.BuildingSelection.Farm.PerformedAsObservable().Select(_ => BuildingType.Farm),
-                this._inputActions.BuildingSelection.Mine.PerformedAsObservable().Select(_ => BuildingType.Mine)
+            OnBuildingHotkey = Observable.Merge(
+                _inputActions.BuildingSelection.House.PerformedAsObservable().Select(_ => BuildingType.House),
+                _inputActions.BuildingSelection.Farm.PerformedAsObservable().Select(_ => BuildingType.Farm),
+                _inputActions.BuildingSelection.Mine.PerformedAsObservable().Select(_ => BuildingType.Mine)
             );
         }
 
@@ -100,9 +94,9 @@ namespace Infrastructure.Input
 
         public Vector3 GetMouseWorldPosition()
         {
-            Vector2 mousePos = this.GetMousePosition();
-            Vector3 worldPosition = this._mainCamera.ScreenToWorldPoint(
-                new Vector3(mousePos.x, mousePos.y, this._mainCamera.nearClipPlane));
+            Vector2 mousePos = GetMousePosition();
+            Vector3 worldPosition = _mainCamera.ScreenToWorldPoint(
+                new Vector3(mousePos.x, mousePos.y, _mainCamera.nearClipPlane));
             worldPosition.z = 0;
             return worldPosition;
         }

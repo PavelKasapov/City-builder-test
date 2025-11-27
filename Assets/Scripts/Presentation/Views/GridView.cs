@@ -27,61 +27,61 @@ namespace Presentation.Gameplay.Views
         [Inject]
         public void Construct(GridDataService gridDataService, GridHighlightService highlightService)
         {
-            this._gridDataService = gridDataService;
-            this._highlightService = highlightService;
+            _gridDataService = gridDataService;
+            _highlightService = highlightService;
         }
 
         public void Initialize(int width, int height)
         {
-            this.CreateComponents();
-            this.CreateMesh(width, height);
-            this.SetupTexture(width, height);
-            this.SetupSubscriptions();
-            this.UpdateAllCells();
+            CreateComponents();
+            CreateMesh(width, height);
+            SetupTexture(width, height);
+            SetupSubscriptions();
+            UpdateAllCells();
         }
 
         private void SetupSubscriptions()
         {
-            this._highlightService.HoveredPosition
-                .Subscribe(_ => this.UpdateTexture())
-                .AddTo(this._disposables);
+            _highlightService.HoveredPosition
+                .Subscribe(_ => UpdateTexture())
+                .AddTo(_disposables);
 
-            this._highlightService.HoveredSize
-                .Subscribe(_ => this.UpdateTexture())
-                .AddTo(this._disposables);
+            _highlightService.HoveredSize
+                .Subscribe(_ => UpdateTexture())
+                .AddTo(_disposables);
 
-            this._highlightService.IsPositionValid
-                .Subscribe(_ => this.UpdateTexture())
-                .AddTo(this._disposables);
+            _highlightService.IsPositionValid
+                .Subscribe(_ => UpdateTexture())
+                .AddTo(_disposables);
         }
 
         public void SetCellState(GridPosition position, bool isOccupied)
         {
-            this.UpdateTexture();
+            UpdateTexture();
         }
 
         private void UpdateAllCells()
         {
-            this.UpdateTexture();
+            UpdateTexture();
         }
 
         private void UpdateTexture()
         {
-            foreach (GridPosition position in this._gridDataService.GetAllPositions())
+            foreach (GridPosition position in _gridDataService.GetAllPositions())
             {
-                Color color = this.GetCellColor(position);
-                this._cellStatesTexture.SetPixel(position.X, position.Y, color);
+                Color color = GetCellColor(position);
+                _cellStatesTexture.SetPixel(position.X, position.Y, color);
             }
-            this._cellStatesTexture.Apply();
+            _cellStatesTexture.Apply();
         }
 
         private Color GetCellColor(GridPosition position)
         {
-            bool isOccupied = this._gridDataService.IsCellOccupied(position);
-            Color baseColor = isOccupied ? this._occupiedColor : this._freeColor;
+            bool isOccupied = _gridDataService.IsCellOccupied(position);
+            Color baseColor = isOccupied ? _occupiedColor : _freeColor;
 
-            GridPosition? hoveredPosition = this._highlightService.HoveredPosition.CurrentValue;
-            BuildingSize? hoveredSize = this._highlightService.HoveredSize.CurrentValue;
+            GridPosition? hoveredPosition = _highlightService.HoveredPosition.CurrentValue;
+            BuildingSize? hoveredSize = _highlightService.HoveredSize.CurrentValue;
 
             if (hoveredPosition.HasValue && hoveredSize.HasValue)
             {
@@ -91,7 +91,7 @@ namespace Presentation.Gameplay.Views
                 if (position.X >= hoverPos.X && position.X < hoverPos.X + size.Width &&
                     position.Y >= hoverPos.Y && position.Y < hoverPos.Y + size.Height)
                 {
-                    return this._highlightService.IsPositionValid.CurrentValue ? this._hoverValidColor : this._hoverInvalidColor;
+                    return _highlightService.IsPositionValid.CurrentValue ? _hoverValidColor : _hoverInvalidColor;
                 }
             }
 
@@ -100,9 +100,9 @@ namespace Presentation.Gameplay.Views
 
         private void CreateComponents()
         {
-            this._meshFilter = this.gameObject.AddComponent<MeshFilter>();
-            this._meshRenderer = this.gameObject.AddComponent<MeshRenderer>();
-            this._meshRenderer.material = new Material(this._gridMaterial);
+            _meshFilter = gameObject.AddComponent<MeshFilter>();
+            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            _meshRenderer.material = new Material(_gridMaterial);
         }
 
         private void CreateMesh(int width, int height)
@@ -124,29 +124,29 @@ namespace Presentation.Gameplay.Views
             mesh.triangles = triangles;
             mesh.uv = uv;
 
-            this._meshFilter.mesh = mesh;
+            _meshFilter.mesh = mesh;
         }
 
         private void SetupTexture(int width, int height)
         {
-            this._cellStatesTexture = new Texture2D(width, height);
-            this._cellStatesTexture.filterMode = FilterMode.Point;
+            _cellStatesTexture = new Texture2D(width, height);
+            _cellStatesTexture.filterMode = FilterMode.Point;
 
             Color[] colors = new Color[width * height];
             for (int i = 0; i < colors.Length; i++)
             {
-                colors[i] = this._freeColor;
+                colors[i] = _freeColor;
             }
-            this._cellStatesTexture.SetPixels(colors);
-            this._cellStatesTexture.Apply();
+            _cellStatesTexture.SetPixels(colors);
+            _cellStatesTexture.Apply();
 
-            this._meshRenderer.material.SetTexture("_CellColors", this._cellStatesTexture);
-            this._meshRenderer.material.SetVector("_GridSize", new Vector4(width, height, 0, 0));
+            _meshRenderer.material.SetTexture("_CellColors", _cellStatesTexture);
+            _meshRenderer.material.SetVector("_GridSize", new Vector4(width, height, 0, 0));
         }
 
         private void OnDestroy()
         {
-            this._disposables?.Dispose();
+            _disposables?.Dispose();
         }
     }
 }

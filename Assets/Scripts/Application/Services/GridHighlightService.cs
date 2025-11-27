@@ -15,21 +15,21 @@ namespace Application.Services
 
         public GridHighlightService(Grid grid)
         {
-            this._grid = grid;
+            _grid = grid;
         }
 
         public void UpdateHoveredArea(GridPosition position, BuildingSize size, bool isValid)
         {
-            this.HoveredPosition.Value = position;
-            this.HoveredSize.Value = size;
-            this.IsPositionValid.Value = isValid;
+            HoveredPosition.Value = position;
+            HoveredSize.Value = size;
+            IsPositionValid.Value = isValid;
         }
 
         public void ClearHover()
         {
-            this.HoveredPosition.Value = null;
-            this.HoveredSize.Value = null;
-            this.IsPositionValid.Value = false;
+            HoveredPosition.Value = null;
+            HoveredSize.Value = null;
+            IsPositionValid.Value = false;
         }
     }
 }

@@ -24,19 +24,19 @@ namespace Presentation.Presenters
             ISubscriber<BuildingPlacedEvent> buildingSubscriber,
             IPublisher<PlaceBuildingCommand> commandPublisher)
         {
-            this._grid = grid;
-            this._gridView = gridView;
-            this._buildingSubscriber = buildingSubscriber;
-            this._commandPublisher = commandPublisher;
+            _grid = grid;
+            _gridView = gridView;
+            _buildingSubscriber = buildingSubscriber;
+            _commandPublisher = commandPublisher;
         }
 
         public void Initialize()
         {
-            this._gridView.Initialize(this._grid.Width, this._grid.Height);
-            this._buildingSubscriber.Subscribe(this.OnBuildingPlaced).AddTo(this._disposables);
+            _gridView.Initialize(_grid.Width, _grid.Height);
+            _buildingSubscriber.Subscribe(OnBuildingPlaced).AddTo(_disposables);
 
             // Both publisher test
-            this._commandPublisher.Publish(new PlaceBuildingCommand
+            _commandPublisher.Publish(new PlaceBuildingCommand
             {
                 Position = new GridPosition(5, 5),
                 BuildingType = BuildingType.House
@@ -52,7 +52,7 @@ namespace Presentation.Presenters
 
         public void Dispose()
         {
-            this._disposables?.Dispose();
+            _disposables?.Dispose();
         }
 
         private void OnBuildingPlaced(BuildingPlacedEvent evt)
@@ -61,7 +61,7 @@ namespace Presentation.Presenters
             {
                 for (int y = evt.Position.Y; y < evt.Position.Y + evt.Size.Height; y++)
                 {
-                    this._gridView.SetCellState(new GridPosition(x, y), true);
+                    _gridView.SetCellState(new GridPosition(x, y), true);
                 }
             }
         }

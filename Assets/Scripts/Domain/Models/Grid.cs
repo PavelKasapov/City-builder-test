@@ -8,25 +8,25 @@
 
         public Grid(int width, int height)
         {
-            this.Width = width;
-            this.Height = height;
-            this._cells = new GridCell[width, height];
+            Width = width;
+            Height = height;
+            _cells = new GridCell[width, height];
 
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    this._cells[x, y] = new GridCell(new GridPosition(x, y));
+                    _cells[x, y] = new GridCell(new GridPosition(x, y));
                 }
             }
         }
 
         public GridCell GetCell(GridPosition position)
         {
-            if (position.X >= 0 && position.X < this.Width &&
-                position.Y >= 0 && position.Y < this.Height)
+            if (position.X >= 0 && position.X < Width &&
+                position.Y >= 0 && position.Y < Height)
             {
-                return this._cells[position.X, position.Y];
+                return _cells[position.X, position.Y];
             }
 
             return null;
@@ -40,7 +40,7 @@
                 for (int y = position.Y; y < position.Y + size.Height; y++)
                 {
                     GridPosition currentPos = new GridPosition(x, y);
-                    GridCell cell = this.GetCell(currentPos);
+                    GridCell cell = GetCell(currentPos);
 
                     if (cell == null || cell.IsOccupied)
                     {
@@ -57,7 +57,7 @@
                 for (int y = position.Y; y < position.Y + size.Height; y++)
                 {
                     GridPosition currentPos = new GridPosition(x, y);
-                    GridCell cell = this.GetCell(currentPos);
+                    GridCell cell = GetCell(currentPos);
 
                     if (cell != null)
                     {

@@ -10,35 +10,35 @@ namespace Application.Services
         private readonly Dictionary<ResourceType, ReactiveProperty<int>> _resources = new Dictionary<ResourceType, ReactiveProperty<int>>();
         private readonly Dictionary<ResourceType, ReadOnlyReactiveProperty<int>> _readOnlyResources = new Dictionary<ResourceType, ReadOnlyReactiveProperty<int>>();
 
-        public ReadOnlyReactiveProperty<int> Gold => this._readOnlyResources[ResourceType.Gold];
+        public ReadOnlyReactiveProperty<int> Gold => _readOnlyResources[ResourceType.Gold];
 
         public EconomyService()
         {
-            this._resources[ResourceType.Gold] = new ReactiveProperty<int>(3000);
-            this._readOnlyResources[ResourceType.Gold] = this._resources[ResourceType.Gold].ToReadOnlyReactiveProperty();
+            _resources[ResourceType.Gold] = new ReactiveProperty<int>(3000);
+            _readOnlyResources[ResourceType.Gold] = _resources[ResourceType.Gold].ToReadOnlyReactiveProperty();
 
-            Debug.Log($"Initial gold: {this.Gold.CurrentValue}");
+            Debug.Log($"Initial gold: {Gold.CurrentValue}");
         }
 
         public bool CanAfford(ResourceData cost)
         {
-            return this._resources[cost.Type].CurrentValue >= cost.Amount;
+            return _resources[cost.Type].CurrentValue >= cost.Amount;
         }
 
         public bool TrySpend(ResourceData cost)
         {
-            if (!this.CanAfford(cost))
+            if (!CanAfford(cost))
             {
                 return false;
             }
 
-            this._resources[cost.Type].Value -= cost.Amount;
+            _resources[cost.Type].Value -= cost.Amount;
             return true;
         }
 
         public void AddResource(ResourceData gain)
         {
-            this._resources[gain.Type].Value += gain.Amount;
+            _resources[gain.Type].Value += gain.Amount;
         }
     }
 }

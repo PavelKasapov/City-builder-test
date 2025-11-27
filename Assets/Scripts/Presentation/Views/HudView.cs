@@ -17,56 +17,56 @@ namespace Presentation.Gameplay.Views
         private Button _mineButton;
 
         private readonly Subject<BuildingType> _buildingSelectedSubject = new Subject<BuildingType>();
-        public Observable<BuildingType> OnBuildingSelected => this._buildingSelectedSubject;
+        public Observable<BuildingType> OnBuildingSelected => _buildingSelectedSubject;
 
         public void Initialize()
         {
             // Решаем проблему с инициализацией через активацию/деактивацию
-            this._uiDocument.enabled = false;
-            this._uiDocument.enabled = true;
+            _uiDocument.enabled = false;
+            _uiDocument.enabled = true;
 
-            this.InitializeUI();
+            InitializeUI();
         }
 
         private void InitializeUI()
         {
-            VisualElement root = this._uiDocument.rootVisualElement;
+            VisualElement root = _uiDocument.rootVisualElement;
 
-            this._goldLabel = root.Q<Label>("gold-label");
-            this._houseButton = root.Q<Button>("house-button");
-            this._farmButton = root.Q<Button>("farm-button");
-            this._mineButton = root.Q<Button>("mine-button");
+            _goldLabel = root.Q<Label>("gold-label");
+            _houseButton = root.Q<Button>("house-button");
+            _farmButton = root.Q<Button>("farm-button");
+            _mineButton = root.Q<Button>("mine-button");
 
-            this._houseButton.focusable = false;
-            this._farmButton.focusable = false;
-            this._mineButton.focusable = false;
+            _houseButton.focusable = false;
+            _farmButton.focusable = false;
+            _mineButton.focusable = false;
 
-            if (this._houseButton != null)
-                this._houseButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.House);
+            if (_houseButton != null)
+                _houseButton.clicked += () => OnBuildingButtonClicked(BuildingType.House);
 
-            if (this._farmButton != null)
-                this._farmButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.Farm);
+            if (_farmButton != null)
+                _farmButton.clicked += () => OnBuildingButtonClicked(BuildingType.Farm);
 
-            if (this._mineButton != null)
-                this._mineButton.clicked += () => this.OnBuildingButtonClicked(BuildingType.Mine);
+            if (_mineButton != null)
+                _mineButton.clicked += () => OnBuildingButtonClicked(BuildingType.Mine);
         }
 
         public void UpdateGoldDisplay(int goldAmount)
         {
-            if (this._goldLabel != null)
+            if (_goldLabel != null)
             {
-                this._goldLabel.text = $"Gold: {goldAmount}";
+                _goldLabel.text = $"Gold: {goldAmount}";
             }
         }
 
         private void OnBuildingButtonClicked(BuildingType buildingType)
         {
-            this._buildingSelectedSubject.OnNext(buildingType);
+            _buildingSelectedSubject.OnNext(buildingType);
         }
 
         private void OnDestroy()
         {
-            this._buildingSelectedSubject?.Dispose();
+            _buildingSelectedSubject?.Dispose();
         }
     }
 }

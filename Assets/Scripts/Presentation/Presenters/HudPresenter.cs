@@ -17,25 +17,25 @@ namespace Presentation.Gameplay.Presenters
             IHudView hudView,
             EconomyService economyService)
         {
-            this._hudView = hudView;
-            this._economyService = economyService;
+            _hudView = hudView;
+            _economyService = economyService;
         }
 
         public void Initialize()
         {
-            this._hudView.Initialize();
-            this._economyService.Gold.Subscribe(this.OnGoldChanged).AddTo(this._disposables);
-            this.OnGoldChanged(this._economyService.Gold.CurrentValue);
+            _hudView.Initialize();
+            _economyService.Gold.Subscribe(OnGoldChanged).AddTo(_disposables);
+            OnGoldChanged(_economyService.Gold.CurrentValue);
         }
 
         public void Dispose()
         {
-            this._disposables?.Dispose();
+            _disposables?.Dispose();
         }
 
         private void OnGoldChanged(int gold)
         {
-            this._hudView.UpdateGoldDisplay(gold);
+            _hudView.UpdateGoldDisplay(gold);
         }
     }
 }

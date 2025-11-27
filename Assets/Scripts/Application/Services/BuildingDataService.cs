@@ -21,21 +21,21 @@ namespace Application.Services
 
         public BuildingSize GetBuildingSize(BuildingType buildingType)
         {
-            return this._buildingSizes.TryGetValue(buildingType, out BuildingSize size)
+            return _buildingSizes.TryGetValue(buildingType, out BuildingSize size)
                 ? size
                 : new BuildingSize(1, 1);
         }
 
         public ResourceData GetBuildingCost(BuildingType buildingType)
         {
-            return this._buildingCosts.TryGetValue(buildingType, out ResourceData cost)
+            return _buildingCosts.TryGetValue(buildingType, out ResourceData cost)
                 ? cost
                 : new ResourceData { Type = ResourceType.Gold, Amount = 0 };
         }
 
         public bool IsPositionValidForBuilding(Grid grid, GridPosition position, BuildingType buildingType)
         {
-            BuildingSize size = this.GetBuildingSize(buildingType);
+            BuildingSize size = GetBuildingSize(buildingType);
 
             for (int x = position.X; x < position.X + size.Width; x++)
             {

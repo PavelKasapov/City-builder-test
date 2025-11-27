@@ -14,42 +14,42 @@ namespace Application.Services
 
         public GridDataService(Grid grid, GridHighlightService highlightService)
         {
-            this._grid = grid;
+            _grid = grid;
 
-            this.HoveredPosition = highlightService.HoveredPosition.ToReadOnlyReactiveProperty();
-            this.IsHoverValid = highlightService.IsPositionValid.ToReadOnlyReactiveProperty();
+            HoveredPosition = highlightService.HoveredPosition.ToReadOnlyReactiveProperty();
+            IsHoverValid = highlightService.IsPositionValid.ToReadOnlyReactiveProperty();
 
-            this.InitializeCellStates();
+            InitializeCellStates();
         }
 
         private void InitializeCellStates()
         {
-            for (int x = 0; x < this._grid.Width; x++)
+            for (int x = 0; x < _grid.Width; x++)
             {
-                for (int y = 0; y < this._grid.Height; y++)
+                for (int y = 0; y < _grid.Height; y++)
                 {
                     GridPosition position = new GridPosition(x, y);
-                    GridCell cell = this._grid.GetCell(position);
-                    this._cellStates[position] = cell?.IsOccupied ?? false;
+                    GridCell cell = _grid.GetCell(position);
+                    _cellStates[position] = cell?.IsOccupied ?? false;
                 }
             }
         }
 
         public bool IsCellOccupied(GridPosition position)
         {
-            return this._cellStates.TryGetValue(position, out bool occupied) && occupied;
+            return _cellStates.TryGetValue(position, out bool occupied) && occupied;
         }
 
         public void UpdateCellState(GridPosition position, bool isOccupied)
         {
-            this._cellStates[position] = isOccupied;
+            _cellStates[position] = isOccupied;
         }
 
         public IEnumerable<GridPosition> GetAllPositions()
         {
-            for (int x = 0; x < this._grid.Width; x++)
+            for (int x = 0; x < _grid.Width; x++)
             {
-                for (int y = 0; y < this._grid.Height; y++)
+                for (int y = 0; y < _grid.Height; y++)
                 {
                     yield return new GridPosition(x, y);
                 }
@@ -62,7 +62,7 @@ namespace Application.Services
             {
                 for (int y = position.Y; y < position.Y + size.Height; y++)
                 {
-                    this.UpdateCellState(new GridPosition(x, y), isOccupied);
+                    UpdateCellState(new GridPosition(x, y), isOccupied);
                 }
             }
         }
