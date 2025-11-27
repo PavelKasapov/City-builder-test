@@ -9,14 +9,15 @@ namespace Infrastructure.Camera
     public class CameraController : IInitializable, System.IDisposable
     {
         private readonly IInputService _inputService;
-        private readonly CompositeDisposable _disposables = new CompositeDisposable();
-        private UnityEngine.Camera _mainCamera; // ← Явно указан UnityEngine.Camera
+        private readonly CompositeDisposable _disposables = new();
+        private UnityEngine.Camera _mainCamera;
         private Transform _cameraTransform;
 
-        [SerializeField]
-        private float _moveSpeed = 10f;
-        [SerializeField]
-        private float _zoomSpeed = 5f;
+        [SerializeField] private float _moveSpeed = 10f;
+        [SerializeField] private float _zoomSpeed = 5f;
+
+        private Vector2 _currentMovement;
+        private float _currentZoom;
 
         [Inject]
         public CameraController(IInputService inputService)
@@ -26,7 +27,7 @@ namespace Infrastructure.Camera
 
         public void Initialize()
         {
-            this._mainCamera = UnityEngine.Camera.main; // ← Явное указание
+            this._mainCamera = UnityEngine.Camera.main;
             if (this._mainCamera != null)
             {
                 this._cameraTransform = this._mainCamera.transform;
@@ -43,33 +44,42 @@ namespace Infrastructure.Camera
 
         private void SetupCameraInput()
         {
-            Observable.EveryUpdate()
-                .Subscribe(_ => this.UpdateCameraMovement())
+            this._inputService.CameraMovement
+                .Subscribe(movement => {
+                    this._currentMovement = movement;
+                })
                 .AddTo(this._disposables);
 
             this._inputService.CameraZoom
-                .Subscribe(this.UpdateCameraZoom)
+                .Subscribe(zoom => {
+                    this._currentZoom = zoom;
+                })
+                .AddTo(this._disposables);
+
+            Observable.EveryUpdate()
+                .Subscribe(_ => this.ApplyCameraMovement())
                 .AddTo(this._disposables);
         }
 
-        private void UpdateCameraMovement()
+        private void ApplyCameraMovement()
         {
             if (this._cameraTransform == null) return;
 
-            Vector2 movement = this._inputService.CameraMovement.Value;
-            if (movement != Vector2.zero)
+            if (this._currentMovement != Vector2.zero)
             {
-                Vector3 move = new Vector3(movement.x, movement.y, 0) * this._moveSpeed * Time.deltaTime;
+                Vector3 move = new Vector3(this._currentMovement.x, this._currentMovement.y, 0)
+                    * this._moveSpeed * Time.deltaTime;
                 this._cameraTransform.Translate(move, Space.World);
+            }
+
+            if (!Mathf.Approximately(this._currentZoom, 0f))
+            {
+                Vector3 zoomMove = Vector3.forward * this._currentZoom * this._zoomSpeed * Time.deltaTime;
+                this._cameraTransform.Translate(zoomMove, Space.Self);
             }
         }
 
-        private void UpdateCameraZoom(float zoom)
-        {
-            if (this._cameraTransform == null || Mathf.Approximately(zoom, 0f)) return;
-
-            Vector3 zoomMove = Vector3.forward * zoom * this._zoomSpeed * Time.deltaTime;
-            this._cameraTransform.Translate(zoomMove, Space.Self);
-        }
+        /*public void SetMoveSpeed(float speed) => this._moveSpeed = speed;
+        public void SetZoomSpeed(float speed) => this._zoomSpeed = speed;*/
     }
 }

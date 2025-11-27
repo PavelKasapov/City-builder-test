@@ -43,8 +43,7 @@ namespace Infrastructure
             builder.Register<BuildingDataService>(Lifetime.Singleton);
 
             // Use Cases
-            builder.Register<PlaceBuildingUseCase>(Lifetime.Singleton)
-                .AsImplementedInterfaces();
+            builder.Register<PlaceBuildingUseCase>(Lifetime.Singleton);
 
 
             // Events and Commands

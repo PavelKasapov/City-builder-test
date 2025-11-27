@@ -71,6 +71,7 @@ namespace Infrastructure.Input
                 .PerformedAsObservable()
                 .Merge(this._inputActions.Camera.Movement.CanceledAsObservable())
                 .Select(ctx => ctx.ReadValue<Vector2>())
+                .DistinctUntilChanged()
                 .Publish()
                 .RefCount();
 
@@ -78,6 +79,7 @@ namespace Infrastructure.Input
                 .PerformedAsObservable()
                 .Merge(this._inputActions.Camera.Zoom.CanceledAsObservable())
                 .Select(ctx => ctx.ReadValue<float>())
+                .DistinctUntilChanged()
                 .Publish()
                 .RefCount();
 
