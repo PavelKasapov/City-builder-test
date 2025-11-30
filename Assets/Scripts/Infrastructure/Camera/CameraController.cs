@@ -13,73 +13,139 @@ namespace Infrastructure.Camera
         private UnityEngine.Camera _mainCamera;
         private Transform _cameraTransform;
 
-        [SerializeField] private float _moveSpeed = 10f;
-        [SerializeField] private float _zoomSpeed = 5f;
+        private float _baseMoveSpeed = 20f;
 
+        private float _zoomSpeed = 2f;
+        private float _zoomSmoothness = 0.05f;
+        private float _minOrthoSize = 10f;
+        private float _maxOrthoSize = 50f;
+        private float _defaultOrthoSize = 25f;
+
+        private float _acceleration = 8f;
+        private float _deceleration = 12f;
+        private float _maxSpeedMultiplier = 2.5f;
+
+        private Vector2 _targetMovement;
         private Vector2 _currentMovement;
+        private float _targetZoom;
         private float _currentZoom;
+        private float _targetOrthoSize;
+
+        private float _currentMoveSpeed;
 
         [Inject]
         public CameraController(IInputService inputService)
         {
-            this._inputService = inputService;
+            _inputService = inputService;
         }
 
         public void Initialize()
         {
-            this._mainCamera = UnityEngine.Camera.main;
-            if (this._mainCamera != null)
+            _mainCamera = UnityEngine.Camera.main;
+            if (_mainCamera != null)
             {
-                this._cameraTransform = this._mainCamera.transform;
+                _cameraTransform = _mainCamera.transform;
+                _targetOrthoSize = _mainCamera.orthographicSize;
+                _defaultOrthoSize = _mainCamera.orthographicSize;
             }
 
-            this.SetupCameraInput();
+            SetupCameraInput();
             Debug.Log("[CameraController] Initialized");
         }
 
         public void Dispose()
         {
-            this._disposables?.Dispose();
+            _disposables?.Dispose();
         }
 
         private void SetupCameraInput()
         {
-            this._inputService.CameraMovement
+            _inputService.CameraMovement
                 .Subscribe(movement => {
-                    this._currentMovement = movement;
+                    _targetMovement = movement;
                 })
-                .AddTo(this._disposables);
+                .AddTo(_disposables);
 
-            this._inputService.CameraZoom
+            _inputService.CameraZoom
                 .Subscribe(zoom => {
-                    this._currentZoom = zoom;
+                    _targetZoom = zoom;
                 })
-                .AddTo(this._disposables);
+                .AddTo(_disposables);
 
             Observable.EveryUpdate()
-                .Subscribe(_ => this.ApplyCameraMovement())
-                .AddTo(this._disposables);
+                .Subscribe(_ => ApplySmoothCameraMovement())
+                .AddTo(_disposables);
         }
 
-        private void ApplyCameraMovement()
+        private void ApplySmoothCameraMovement()
         {
-            if (this._cameraTransform == null) return;
+            if (_cameraTransform == null) return;
 
-            if (this._currentMovement != Vector2.zero)
-            {
-                Vector3 move = new Vector3(this._currentMovement.x, this._currentMovement.y, 0)
-                    * this._moveSpeed * Time.deltaTime;
-                this._cameraTransform.Translate(move, Space.World);
-            }
+            UpdateMovementWithInertia();
+            ApplyOrthographicZoom();
+        }
 
-            if (!Mathf.Approximately(this._currentZoom, 0f))
+        private void UpdateMovementWithInertia()
+        {
+            _currentMoveSpeed = _targetMovement != Vector2.zero
+                ? Mathf.Lerp(_currentMoveSpeed, _maxSpeedMultiplier, _acceleration * Time.deltaTime)
+                : Mathf.Lerp(_currentMoveSpeed, 1f, _deceleration * Time.deltaTime);
+            
+            _currentMovement = Vector2.Lerp(_currentMovement, _targetMovement, 5f * Time.deltaTime);
+
+            if (_currentMovement != Vector2.zero)
             {
-                Vector3 zoomMove = Vector3.forward * this._currentZoom * this._zoomSpeed * Time.deltaTime;
-                this._cameraTransform.Translate(zoomMove, Space.Self);
+                float zoomFactor = CalculateZoomSpeedFactor();
+
+                Vector3 move = new Vector3(_currentMovement.x, _currentMovement.y, 0)
+                    * _baseMoveSpeed * _currentMoveSpeed * zoomFactor * Time.deltaTime;
+                _cameraTransform.Translate(move, Space.World);
             }
         }
 
-        /*public void SetMoveSpeed(float speed) => this._moveSpeed = speed;
-        public void SetZoomSpeed(float speed) => this._zoomSpeed = speed;*/
+        private float CalculateZoomSpeedFactor()
+        {
+            if (_mainCamera == null) return 1f;
+
+            float baseFactor = _mainCamera.orthographicSize / _defaultOrthoSize;
+            return Mathf.Clamp(baseFactor, 0.3f, 3f);
+        }
+
+        private void ApplyOrthographicZoom()
+        {
+            if (_mainCamera == null) return;
+
+            _currentZoom = Mathf.Lerp(_currentZoom, _targetZoom, _zoomSmoothness);
+
+            if (!Mathf.Approximately(_currentZoom, 0f))
+            {
+                _targetOrthoSize -= _currentZoom * _zoomSpeed;
+                _targetOrthoSize = Mathf.Clamp(_targetOrthoSize, _minOrthoSize, _maxOrthoSize);
+
+                _mainCamera.orthographicSize = Mathf.Lerp(
+                    _mainCamera.orthographicSize,
+                    _targetOrthoSize,
+                    _zoomSmoothness
+                );
+            }
+        }
+
+        /*public void SetBaseMoveSpeed(float speed) => _baseMoveSpeed = speed;
+        public void SetZoomSpeed(float speed) => _zoomSpeed = speed;
+        public void SetZoomSmoothness(float smoothness) => _zoomSmoothness = smoothness;
+        public void SetOrthoSizeLimits(float min, float max)
+        {
+            _minOrthoSize = min;
+            _maxOrthoSize = max;
+            _targetOrthoSize = Mathf.Clamp(_targetOrthoSize, min, max);
+        }
+        public void SetAcceleration(float acceleration) => _acceleration = acceleration;
+        public void SetDeceleration(float deceleration) => _deceleration = deceleration;
+        public void SetMaxSpeedMultiplier(float multiplier) => _maxSpeedMultiplier = multiplier;
+
+        public float GetCurrentSpeed() => _baseMoveSpeed * _currentMoveSpeed * CalculateZoomSpeedFactor();
+        public Vector2 GetCurrentMovement() => _currentMovement;
+        public float GetCurrentOrthoSize() => _mainCamera != null ? _mainCamera.orthographicSize : 0f;
+        public float GetZoomSpeedFactor() => CalculateZoomSpeedFactor();*/
     }
 }
